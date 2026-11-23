@@ -5,8 +5,8 @@ a HEAD request compares Last-Modified + Content-Length against a small JSON
 sidecar and only re-fetches on change.
 
 Every request is gated on a usable link first (``addressvault.net``, the same
-gate the address vault pulls behind). The weekly trigger is what makes that
-worth doing: a run lost to a dead link is not retried until next Monday, and on
+gate the address vault pulls behind). When the build was weekly, that was what
+made it worth doing: a run lost to a dead link was not retried for a week, and on
 2026-07-27 this task died exactly that way -- an unhandled getaddrinfo
 traceback out of the very first request. A link that dies mid-body now resumes
 instead of costing the whole download.
@@ -23,7 +23,7 @@ from layerkit import citydata
 from src import config
 
 # The Green Spaces dump is ~20 MB. Smaller than the streets sibling's, but a
-# retry costs nothing when the link is healthy and buys back a week when it is
+# retry costs nothing when the link is healthy and buys back a day when it is
 # not.
 RETRIES = 3
 RETRY_WAIT = 30

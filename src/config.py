@@ -156,7 +156,7 @@ GAPS_COUNT_PATH = os.path.join(DATA_DIR, "gaps.count.json")
 # --- Gap history (trend page) ---
 # One JSON line per live compare run: the gap counts and what they were
 # computed against. It lives in data/ like the rest of the observer's state.
-# The tiles are rebuilt from scratch and force-pushed every week; this file is
+# The tiles are rebuilt from scratch and force-pushed every day; this file is
 # appended to, and its published copy re-seeds a checkout that has none.
 HISTORY_PATH = os.path.join(DATA_DIR, "history.jsonl")
 HISTORY_URL = f"{PAGES_URL}/gaps/history.jsonl"
@@ -166,5 +166,5 @@ HISTORY_URL = f"{PAGES_URL}/gaps/history.jsonl"
 # and a pause between dates -- attic queries are heavier than live ones.
 ATTIC_URL = "https://overpass-api.de/api/interpreter"
 BACKFILL_SINCE = "2026-06-01"   # a Monday, the week before the layer went live
-BACKFILL_STEP_DAYS = 7          # the weekly schedule's cadence
+BACKFILL_STEP_DAYS = 7          # the cadence before the build went daily (2026-11-23)
 BACKFILL_PAUSE = 30

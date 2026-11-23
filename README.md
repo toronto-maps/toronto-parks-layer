@@ -39,12 +39,12 @@ its page redirects to Green Spaces.)
   with `landuse=allotments` accepted only for the City's gardens (see
   [`src/compare.py`](src/compare.py)). Its
   [history page](https://toronto-maps.github.io/toronto-parks-layer/gaps/history.html)
-  charts those counts over time, one point per weekly run. Matched parks whose
+  charts those counts over time, one point per daily run. Matched parks whose
   outlines disagree are listed apart as "worth a look", most disputed first and
   off by default. They are prompts to compare two shapes, not gaps, so they stay
   out of the gap counts and the chart.
 
-All of it is published to GitHub Pages and rebuilt weekly.
+All of it is published to GitHub Pages and rebuilt daily.
 
 ## What is kept
 
@@ -108,13 +108,14 @@ in the GitHub repo, set **Settings &rarr; Pages &rarr; Source** to the
 Run as Administrator:
 
 ```powershell
-.\schedule-add.ps1      # registers a weekly task "kk-TorontoParksLayer", Mondays 16:30
+.\schedule-add.ps1      # registers a daily task "kk-TorontoParksLayer", 08:15
 .\schedule-remove.ps1   # unregisters it
 ```
 
-Weekly is enough &mdash; the City refreshes the Green Spaces dataset monthly, so
-the tiles rarely change; it is the gap page, which diffs against live OSM, that
-moves week to week. 16:30 keeps the build clear of the daily address-layer task.
+Daily, because the gap page diffs against live OSM, which moves every day. The
+City side moves less: a new Green Spaces file roughly weekly, and an unchanged one
+is skipped. 08:15 finishes before the other tile builds start. (The live task's
+command is wrapped by task-beholder; re-running `schedule-add.ps1` drops the wrap.)
 The task runs `python run.py update` and appends output to `logs\scheduler.log`.
 
 ### The link gate
@@ -123,7 +124,7 @@ Both network steps &mdash; the dataset download and the `gh-pages` push &mdash;
 run behind `addressvault.net`, the same offline/metered gate the address vault
 pulls behind. A dead link is not a build failure: `run.py` exits **75**
 (`EX_TEMPFAIL`), nothing is written, and the task's restart-on-failure retries
-three times half an hour apart rather than leaving a seven-day gap. It does not
+three times half an hour apart rather than losing the day. It does not
 wait the link out, since the task carries a hard `ExecutionTimeLimit` that would
 kill a long wait anyway.
 
@@ -133,8 +134,8 @@ over, and a push that cannot resolve `github.com` is retried without rebuilding
 the run later. Before this, a dead resolver on 2026-07-27 took out the run with
 an unhandled traceback out of the first request.
 
-Re-run `schedule-add.ps1` to apply the restart settings to an already registered
-task.
+Re-running `schedule-add.ps1` applies the restart settings to an already registered
+task, but drops its task-beholder wrap.
 
 ### Gap history
 
@@ -143,8 +144,8 @@ OSM data date, and the missing / mismatch / unnamed / TRCA counts -- and the
 site step charts it at [`/gaps/history.html`](https://toronto-maps.github.io/toronto-parks-layer/gaps/history.html),
 with the rows published beside it as `gaps/history.jsonl`. That is the whole
 record the observer keeps: the tiles and the gap list are rebuilt from scratch
-and force-pushed each week, but this file only grows, so the scheduled
-`update` extends the chart by one point every Monday. A run that fell back to
+and force-pushed each day, but this file only grows, so the scheduled
+`update` extends the chart by one point a day. A run that fell back to
 cached OSM is not recorded; it observed nothing new, and a point it drew would
 be a false plateau.
 
@@ -154,14 +155,14 @@ like on each past Monday (an attic query, `[date:...]`, which only that
 instance is relied on for) and re-runs the comparison against it, adding rows
 marked `attic`. It is paced -- one attempt per date, 30 s between dates, and
 it stops at the first unanswered query -- because attic queries cost the
-instance more than live ones and this is a one-off, not the weekly build. Dates
+instance more than live ones and this is a one-off, not the daily build. Dates
 already on record are skipped, so an interrupted run resumes when re-run.
 The default range starts 2026-06-01, the week before the layer went live;
 `--since`, `--until`, `--every` and `--pause` adjust it.
 
 Two caveats the page states: a reconstructed week is compared against
 *today's* City polygons (the City side is not archived; Green Spaces changes
-monthly and slowly), and the counts follow the City dataset, so they move when
+roughly weekly, and slowly), and the counts follow the City dataset, so they move when
 the City adds or reclassifies parks, not only when someone maps one.
 
 A checkout without `data/history.jsonl` (a fresh clone, a wiped `data/`) seeds
@@ -208,7 +209,7 @@ If it still cannot reach anyone, the cache is used &mdash; a stale gap page beat
 none &mdash; but the run stops being quiet about it. The page prints the OSM
 data's own date beside the City date and carries a warning banner, and `update`
 exits **70** *after* publishing, so the tiles still ship and the task's
-restart-on-failure tries the fetch again in half an hour instead of in a week.
+restart-on-failure tries the fetch again in half an hour instead of the next day.
 Being offline is told apart from an Overpass outage and stays a 75.
 
 ## Tests

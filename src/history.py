@@ -2,7 +2,7 @@
 
 Each live comparison appends one line to data/history.jsonl: the date, which
 OSM data it saw, and the counts from the summary. That is the whole record of
-the observer -- a dozen numbers a week -- and gaps/history.html charts it. A
+the observer -- a dozen numbers a day -- and gaps/history.html charts it. A
 run that fell back to cached OSM observed nothing new and is not recorded,
 so the chart never shows a false plateau.
 
@@ -11,7 +11,7 @@ so a lost file is rebuilt with ``backfill``, which asks Overpass what OSM
 looked like on each past Monday and re-runs the comparison against it. That is
 why nothing heavier -- the Overpass replies, the per-park verdicts -- is kept.
 The one caveat: a reconstructed week uses today's City polygons, since the City
-side is not archived; Green Spaces changes monthly and slowly, and the page
+side is not archived; Green Spaces changes slowly, and the page
 says which points are reconstructed.
 """
 
@@ -47,7 +47,7 @@ def backfill(since, until, step_days, pause, sleep=time.sleep):
     Idempotent: dates already on record are skipped, so an interrupted run is
     resumed by running it again. Stops at the first query that gets no answer
     rather than retrying -- attic queries cost the instance more than live
-    ones, and this is a one-off, not the weekly build. Returns the number of
+    ones, and this is a one-off, not the daily build. Returns the number of
     rows added.
     """
     from src import compare  # here, not at the top: compare imports history

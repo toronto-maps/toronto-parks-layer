@@ -116,7 +116,7 @@ def cmd_update(args):
         print("\nThe site is published, but its gap page is comparing against "
               "cached OSM data.")
         print("Exiting non-zero so the scheduled task retries the Overpass "
-              "fetch rather than waiting a week.")
+              "fetch rather than waiting a day.")
         sys.exit(EXIT_OSM_STALE)
 
 
